@@ -1,6 +1,6 @@
 const express = require('express')
 const Joi = require('joi');
-const { v4 } = require('uuid');
+
 const {
   listContacts,
   getContactById,
@@ -8,6 +8,8 @@ const {
   addContact,
   updateContact,
 } = require('../../models/contacts')
+
+const contacts = require('../../models/contacts');
 
 const router = express.Router()
 
@@ -18,9 +20,9 @@ const postSchema = Joi.object({
 })
 
 const putSchema = Joi.object({
-  name: Joi.string,
-  email: Joi.string,
-  phone: Joi.string, 
+  name: Joi.string().optional(),
+  email: Joi.string().optional(),
+  phone: Joi.string().optional(), 
 })
 
 router.get('/', async (req, res, next) => {
@@ -57,13 +59,14 @@ router.get('/:contactId', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   try {
-    // const { error } = postSchema.validate(req.body);
-    // if (error) {
-    //   error.status = 400;
-    //   error.message = 'Missed required field';
-    //   throw error;
-    // }
-    const result = await addContact({ id: v4(), ...req.body });
+    const { error } = postSchema.validate(req.body);
+    if (error) {
+      error.status = 400;
+      error.message = 'Missed required field';
+      throw error;
+    }
+    
+    const result = await addContact(req.body);
     res.status(201).json({
       status: 'success',
       code: 201,
@@ -73,6 +76,37 @@ router.post('/', async (req, res, next) => {
     next(error);
   }
 });
+
+router.put('/:contactId', async (req, res, next) => {
+  try {
+    const { contactId } = req.params;
+    if (Object.keys(req.body).length === 0) {
+      const error = new Error('Missing fields');
+      error.status = 400;
+      throw error;
+    }
+    const { error } = putSchema.validate(req.body);
+    console.log(error);
+    if (error) {
+      error.status = 400;
+      error.message = 'Bad Request. Check all fields';
+      throw error;
+    }
+    const result = await updateContact(contactId, req.body);
+    if (!result) {
+      const error = new Error('Not found');
+      error.status = 404;
+      throw error;
+    }
+    res.status(200).json({
+      status: 'success',
+      code: 201,
+      data: { result },
+    });
+  } catch (error) {
+    next(error);
+  }
+})
 
 router.delete('/:contactId', async (req, res, next) => {
   try {
@@ -88,37 +122,6 @@ router.delete('/:contactId', async (req, res, next) => {
       code: 200,
       message: 'contact deleted',
       data: contact,
-    });
-  } catch (error) {
-    next(error);
-  }
-})
-
-router.put('/:contactId', async (req, res, next) => {
-  try {
-    const { contactId } = req.params;
-    if (Object.keys(req.body).length === 0) {
-      const error = new Error('missing fields');
-      error.status = 400;
-      throw error;
-    }
-    const { error } = contactPutShema.validate(req.body);
-    console.log(error);
-    if (error) {
-      error.status = 400;
-      error.message = 'extra field found';
-      throw error;
-    }
-    const result = await updateContact(contactId, req.body);
-    if (!result) {
-      const error = new Error('Not found');
-      error.status = 404;
-      throw error;
-    }
-    res.status(200).json({
-      status: 'success',
-      code: 201,
-      data: { result },
     });
   } catch (error) {
     next(error);
