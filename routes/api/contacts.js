@@ -9,8 +9,6 @@ const {
   updateContact,
 } = require('../../models/contacts')
 
-const contacts = require('../../models/contacts');
-
 const router = express.Router()
 
 const postSchema = Joi.object({

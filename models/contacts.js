@@ -21,10 +21,8 @@ const addContact = async (body) => {
   const data = await listContacts();
   const newContact = {id: v4(), ...body}
   data.push(newContact)
-  // data.push(body);
   fs.writeFile(contactsPath, JSON.stringify(data, null, 2));
   return newContact;
-  // return body;
 }
 
 const updateContact = async (contactId, body) => {
