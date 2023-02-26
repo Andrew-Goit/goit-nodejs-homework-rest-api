@@ -63,7 +63,6 @@ router.post('/', async (req, res, next) => {
       error.message = 'Missed required field';
       throw error;
     }
-    
     const result = await addContact(req.body);
     res.status(201).json({
       status: 'success',
