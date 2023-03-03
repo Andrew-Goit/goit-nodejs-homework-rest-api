@@ -31,7 +31,8 @@ const addSchema = Joi.object({
 const updateSchema = Joi.object({
     name: Joi.string().optional(),
     email: Joi.string().optional(),
-    phone: Joi.string().optional(), 
+    phone: Joi.string().optional(),
+    favorite: Joi.boolean().optional(), 
 })
 
 const updateFavoriteSchema = Joi.object({
