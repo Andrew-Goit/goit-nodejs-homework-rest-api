@@ -10,7 +10,8 @@ const getAll = async (req, res, next) => {
   if (favorite) {
     filter.favorite = favorite;
   };
-  const contactsList = await Contact.find(filter, "",  {skip, limit}).populate("owner", "name");
+  const contactsList = await Contact.find(filter, "",  {skip, limit})
+  // .populate("owner", "name");
   res.json(contactsList);
 };
 
